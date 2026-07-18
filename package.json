@@ -1,0 +1,26 @@
+{
+  "name": "reino-del-saber",
+  "version": "1.0.0",
+  "description": "Juego educativo interactivo con tutor personal, aventura y tareas para niños",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "educativo",
+    "tutor",
+    "juego",
+    "matemáticas",
+    "ciencias",
+    "sociales"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
