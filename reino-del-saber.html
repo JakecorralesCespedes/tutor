@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏰 El Reino del Saber - Aventura Educativa</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+    background: linear-gradient(180deg, #4a90d9 0%, #63b3ed 100%);
+    min-height: 100vh;
+    padding: 12px;
+    color: #333;
+}
+
+.game-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.top-bar {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    color: #fff;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.top-bar h1 { font-size: 1.4em; }
+.stats { display: flex; gap: 18px; }
+.stat {
+    background: rgba(255,255,255,0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1.05em;
+}
+
+.screen { padding: 24px; min-height: 480px; }
+
+/* ---- PANTALLA DE INICIO ---- */
+.intro { text-align: center; padding: 40px 24px; }
+.intro .hero { font-size: 5em; margin-bottom: 10px; animation: bounce 2s infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+.intro h2 { font-size: 2em; color: #667eea; margin-bottom: 12px; }
+.intro p { font-size: 1.15em; color: #666; margin-bottom: 24px; max-width: 500px; margin-left:auto; margin-right:auto; }
+
+.big-btn {
+    background: linear-gradient(90deg, #f6ad55, #ed8936);
+    color: #fff;
+    border: none;
+    padding: 16px 48px;
+    font-size: 1.3em;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 6px 20px rgba(237,137,54,0.5);
+    transition: transform 0.2s;
+    font-family: inherit;
+}
+.big-btn:hover { transform: scale(1.06); }
+.big-btn:active { transform: scale(0.98); }
+
+/* ---- MAPA DE MUNDOS ---- */
+.worlds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 10px; }
+@media(max-width:640px){ .worlds{grid-template-columns:1fr;} }
+
+.world-card {
+    border-radius: 16px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    border: 4px solid transparent;
+    position: relative;
+}
+.world-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); }
+.world-ciencias { background: linear-gradient(160deg, #fed7d7, #feb2b2); border-color:#fc8181; }
+.world-mate { background: linear-gradient(160deg, #c6f6d5, #9ae6b4); border-color:#68d391; }
+.world-sociales { background: linear-gradient(160deg, #bee3f8, #90cdf4); border-color:#63b3ed; }
+
+.world-icon { font-size: 3.5em; margin-bottom: 8px; }
+.world-card h3 { font-size: 1.25em; margin-bottom: 6px; color:#2d3748; }
+.world-card p { font-size: 0.9em; color: #4a5568; }
+.world-stars { margin-top: 10px; font-size: 1.1em; }
+.world-badge {
+    position:absolute; top:10px; right:10px;
+    background:#48bb78; color:#fff; border-radius:50%;
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+    font-size:1.2em;
+}
+
+/* ---- MINIJUEGOS ---- */
+.game-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.back-arrow {
+    background:#e2e8f0; border:none; width:40px; height:40px; border-radius:50%;
+    font-size:1.3em; cursor:pointer; transition:background 0.2s;
+}
+.back-arrow:hover { background:#cbd5e0; }
+.game-header h2 { font-size:1.4em; color:#667eea; }
+
+.instruction {
+    background: #fffaf0;
+    border-left: 5px solid #f6ad55;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 1.05em;
+}
+
+.level-picker { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.level-btn {
+    flex:1; min-width:120px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 3px solid #e2e8f0;
+    background: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.05em;
+    transition: all 0.2s;
+    font-family: inherit;
+    text-align:center;
+}
+.level-btn:hover { border-color:#667eea; background:#f7fafc; }
+.level-btn.done { border-color:#48bb78; background:#f0fff4; }
+.level-btn .chk { color:#48bb78; }
+
+/* Emparejar */
+.match-area { display:grid; grid-template-columns: 1fr 1fr; gap:24px; }
+.match-col { display:flex; flex-direction:column; gap:12px; }
+.match-col h4 { text-align:center; color:#718096; margin-bottom:4px; }
+.card-item {
+    padding: 14px 12px;
+    border-radius: 12px;
+    border: 3px solid #e2e8f0;
+    background: #fff;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.2s;
+    font-size: 0.98em;
+}
+.card-item:hover { border-color:#a0aec0; }
+.card-item.selected { border-color:#667eea; background:#ebf4ff; transform:scale(1.03); }
+.card-item.matched { border-color:#48bb78; background:#c6f6d5; cursor:default; opacity:0.7; }
+.card-item.wrong { border-color:#f56565; background:#fed7d7; animation: shake 0.4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
+/* Clasificar (arrastrar a cajas) */
+.classify-items { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:20px; padding:16px; background:#f7fafc; border-radius:12px; min-height:70px; }
+.chip {
+    padding: 10px 16px;
+    background: #fff;
+    border: 3px solid #cbd5e0;
+    border-radius: 25px;
+    cursor: grab;
+    font-weight: bold;
+    user-select: none;
+    transition: all 0.2s;
+    touch-action: none;
+}
+.chip:hover { border-color:#667eea; }
+.chip.dragging { opacity:0.4; }
+.bins { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+@media(max-width:560px){ .bins{grid-template-columns:1fr;} }
+.bin {
+    border: 3px dashed #cbd5e0;
+    border-radius: 14px;
+    padding: 16px;
+    min-height: 130px;
+    transition: all 0.2s;
+}
+.bin.over { border-color:#667eea; background:#ebf4ff; }
+.bin h4 { text-align:center; margin-bottom:12px; color:#4a5568; padding-bottom:8px; border-bottom:2px solid #e2e8f0; }
+.bin-content { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.bin .chip { cursor:default; }
+
+/* Quiz visual */
+.quiz-q { font-size:1.2em; font-weight:bold; margin-bottom:16px; text-align:center; background:#edf2f7; padding:16px; border-radius:12px; }
+.quiz-opts { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:560px){ .quiz-opts{grid-template-columns:1fr;} }
+.quiz-opt {
+    padding: 16px;
+    border: 3px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.05em;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.quiz-opt:hover { border-color:#667eea; background:#f7fafc; }
+.quiz-opt.correct { border-color:#48bb78; background:#c6f6d5; }
+.quiz-opt.wrong { border-color:#f56565; background:#fed7d7; }
+
+.check-btn {
+    display:block; margin: 24px auto 0;
+    background: linear-gradient(90deg,#667eea,#764ba2);
+    color:#fff; border:none; padding:14px 40px; border-radius:30px;
+    font-size:1.15em; font-weight:bold; cursor:pointer; font-family:inherit;
+    box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    transition: transform 0.2s;
+}
+.check-btn:hover { transform:scale(1.05); }
+.check-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+/* Popup de recompensa */
+.overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.6); z-index:100;
+    align-items:center; justify-content:center;
+}
+.overlay.show { display:flex; }
+.reward-box {
+    background:#fff; border-radius:20px; padding:36px 44px; text-align:center;
+    animation: pop 0.5s;
+}
+@keyframes pop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+.reward-box .big-emoji { font-size:4em; animation: spin 1s; }
+@keyframes spin { from{transform:rotate(-20deg) scale(0)} to{transform:rotate(0) scale(1)} }
+.reward-box h3 { font-size:1.6em; color:#48bb78; margin:10px 0; }
+.reward-box p { font-size:1.2em; color:#666; margin-bottom:16px; }
+.reward-box .coins-won { font-size:1.4em; color:#ed8936; font-weight:bold; }
+
+.progress-wrap { background:#e2e8f0; border-radius:10px; height:14px; overflow:hidden; margin:16px 0; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#48bb78,#68d391); width:0%; transition:width 0.4s; }
+
+.final-screen { text-align:center; padding:40px 20px; }
+.final-screen .trophy { font-size:6em; animation: bounce 1.5s infinite; }
+.final-screen h2 { font-size:2.2em; color:#ed8936; margin:16px 0; }
+
+/* ---- SELECTOR DE MODO ---- */
+.mode-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:10px; }
+.mode-grid-3 { grid-template-columns:1fr 1fr 1fr; }
+@media(max-width:640px){ .mode-grid, .mode-grid-3 {grid-template-columns:1fr;} }
+.mode-card {
+    border-radius:18px; padding:30px 20px; text-align:center; cursor:pointer;
+    transition:all 0.25s; border:4px solid transparent;
+}
+.mode-card:hover { transform:translateY(-6px); box-shadow:0 12px 30px rgba(0,0,0,0.2); }
+.mode-learn { background:linear-gradient(160deg,#c3e8ff,#90cdf4); border-color:#4299e1; }
+.mode-play { background:linear-gradient(160deg,#e9d8fd,#d6bcfa); border-color:#b794f4; }
+.mode-task { background:linear-gradient(160deg,#fefcbf,#faf089); border-color:#ecc94b; }
+.mode-icon { font-size:4em; margin-bottom:10px; }
+.mode-card h3 { font-size:1.4em; margin-bottom:10px; color:#2d3748; }
+.mode-card p { font-size:0.95em; color:#4a5568; margin-bottom:14px; }
+.mode-tag {
+    display:inline-block; background:rgba(255,255,255,0.7); padding:6px 16px;
+    border-radius:20px; font-weight:bold; font-size:0.85em; color:#2d3748;
+}
+
+/* ---- MODO TUTOR ---- */
+.tutor-list { display:flex; flex-direction:column; gap:12px; }
+.tutor-item {
+    display:flex; align-items:center; gap:14px;
+    padding:16px 18px; border-radius:12px; border:3px solid #e2e8f0;
+    background:#fff; cursor:pointer; transition:all 0.2s;
+}
+.tutor-item:hover { border-color:#4299e1; background:#f0f9ff; }
+.tutor-item.read { border-color:#48bb78; background:#f0fff4; }
+
+.lesson-card {
+    background:#fff; border:3px solid #4299e1; border-radius:16px;
+    padding:24px; margin-bottom:16px;
+}
+.lesson-card .tutor-avatar { font-size:2.5em; text-align:center; margin-bottom:8px; }
+.lesson-card h3 { color:#2b6cb0; text-align:center; margin-bottom:16px; font-size:1.4em; }
+.lesson-step {
+    background:#f0f9ff; border-radius:10px; padding:16px; margin-bottom:12px;
+    border-left:4px solid #4299e1;
+}
+.lesson-step .step-title { font-weight:bold; color:#2c5282; margin-bottom:6px; font-size:1.05em; }
+.lesson-step .step-body { color:#2d3748; line-height:1.6; }
+.lesson-example {
+    background:#fffaf0; border:2px dashed #ecc94b; border-radius:10px;
+    padding:14px; margin:12px 0;
+}
+.lesson-example .ex-label { font-weight:bold; color:#d69e2e; margin-bottom:6px; font-size:0.9em; }
+.lesson-tip {
+    background:#f0fff4; border-radius:10px; padding:14px 16px; margin-top:12px;
+    color:#2f855a; border-left:4px solid #48bb78;
+}
+.lesson-nav { display:flex; gap:10px; margin-top:16px; }
+.emoji-big { font-size:1.3em; }
+.fact-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0; }
+@media(max-width:560px){ .fact-grid{grid-template-columns:1fr;} }
+.fact-box {
+    background:#edf2f7; border-radius:10px; padding:12px; text-align:center;
+}
+.fact-box .fact-icon { font-size:1.8em; }
+.fact-box .fact-name { font-weight:bold; color:#2d3748; margin:4px 0; }
+.fact-box .fact-desc { font-size:0.85em; color:#718096; }
+
+/* ---- MODO TAREA ---- */
+.task-list { display:flex; flex-direction:column; gap:12px; }
+.task-item {
+    display:flex; align-items:center; gap:14px;
+    padding:16px 18px; border-radius:12px; border:3px solid #e2e8f0;
+    background:#fff; cursor:pointer; transition:all 0.2s;
+}
+.task-item:hover { border-color:#ecc94b; background:#fffff0; }
+.task-item.done { border-color:#48bb78; background:#f0fff4; }
+.task-emoji { font-size:2em; }
+.task-info { flex:1; }
+.task-info h4 { font-size:1.1em; color:#2d3748; margin-bottom:2px; }
+.task-info p { font-size:0.88em; color:#718096; }
+.task-status { font-size:1.5em; }
+
+.task-question {
+    background:#fffaf0; border:3px solid #ecc94b; border-radius:14px;
+    padding:20px; margin-bottom:16px;
+}
+.task-question .qnum { color:#d69e2e; font-weight:bold; font-size:0.9em; margin-bottom:6px; }
+.task-question .qtext { font-size:1.15em; font-weight:bold; margin-bottom:14px; color:#2d3748; }
+
+.task-input {
+    width:100%; padding:14px; border:3px solid #cbd5e0; border-radius:10px;
+    font-size:1.05em; font-family:inherit; resize:vertical; min-height:60px;
+}
+.task-input:focus { outline:none; border-color:#ecc94b; }
+
+.task-choices { display:flex; flex-direction:column; gap:10px; }
+.task-choice {
+    padding:14px; border:3px solid #e2e8f0; border-radius:10px;
+    background:#fff; cursor:pointer; font-weight:bold; text-align:left;
+    font-family:inherit; font-size:1.02em; transition:all 0.2s;
+}
+.task-choice:hover { border-color:#ecc94b; background:#fffff0; }
+.task-choice.picked { border-color:#667eea; background:#ebf4ff; }
+
+.hint-box {
+    background:#ebf8ff; border-left:4px solid #4299e1; padding:12px 16px;
+    border-radius:8px; margin-top:12px; font-size:0.95em; color:#2c5282;
+    display:none;
+}
+.hint-box.show { display:block; }
+.hint-btn {
+    background:none; border:2px solid #4299e1; color:#4299e1;
+    padding:8px 16px; border-radius:20px; cursor:pointer; font-weight:bold;
+    font-family:inherit; margin-top:10px; font-size:0.9em;
+}
+.hint-btn:hover { background:#4299e1; color:#fff; }
+
+/* Hoja de respuestas para copiar */
+.answer-sheet {
+    background:#fff; border:3px solid #48bb78; border-radius:14px;
+    padding:24px; margin-top:10px;
+}
+.answer-sheet h3 { color:#2f855a; margin-bottom:16px; text-align:center; }
+.answer-row {
+    padding:12px 0; border-bottom:2px dashed #e2e8f0;
+}
+.answer-row:last-child { border-bottom:none; }
+.answer-row .a-q { font-size:0.9em; color:#718096; margin-bottom:4px; }
+.answer-row .a-a { font-size:1.05em; color:#2d3748; font-weight:bold; }
+.copy-note {
+    background:#f0fff4; border-radius:10px; padding:16px; margin-top:16px;
+    text-align:center; color:#2f855a; font-weight:bold;
+}
+</style>
+</head>
+<body>
+<div class="game-wrap">
+    <div class="top-bar">
+        <h1>🏰 El Reino del Saber</h1>
+        <div class="stats">
+            <div class="stat">💰 <span id="coins">0</span></div>
+            <div class="stat">⭐ <span id="stars">0</span>/10</div>
+        </div>
+    </div>
+    <div class="screen" id="screen"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<script>
+const state = {
+    coins: 0,
+    stars: 0,
+    completed: {},   // key: "world-level" -> true
+    currentWorld: null
+};
+
+const WORLDS = {
+    ciencias: {
+        name: "🔬 Isla de Ciencias",
+        cls: "world-ciencias",
+        icon: "🔬",
+        desc: "Adaptaciones y seres vivos",
+        levels: [
+            {
+                id: "c1",
+                name: "Defensas Animales",
+                type: "match",
+                instruction: "🛡️ Toca un animal y luego su defensa para emparejarlos. ¡Une los 5 pares!",
+                pairs: [
+                    ["🐢 Tortuga", "Caparazón duro"],
+                    ["🦔 Erizo", "Espinas afiladas"],
+                    ["🦌 Venado", "Cornamentas"],
+                    ["🦨 Zorrillo", "Olor fuerte"],
+                    ["🦎 Camaleón", "Mimetismo"]
+                ]
+            },
+            {
+                id: "c2",
+                name: "¿Cómo se alimentan?",
+                type: "classify",
+                instruction: "🌱 Arrastra cada ser vivo a su grupo. Los AUTÓTROFOS hacen su propio alimento; los HETERÓTROFOS comen a otros.",
+                bins: ["🌱 Autótrofos", "🍖 Heterótrofos"],
+                items: [
+                    ["Árbol", 0],
+                    ["Elefante", 1],
+                    ["Planta de maíz", 0],
+                    ["León", 1],
+                    ["Flor", 0],
+                    ["Serpiente", 1]
+                ]
+            }
+        ]
+    },
+    mate: {
+        name: "📐 Isla de Matemáticas",
+        cls: "world-mate",
+        icon: "📐",
+        desc: "Cuadriláteros y figuras",
+        levels: [
+            {
+                id: "m1",
+                name: "Nombra las Figuras",
+                type: "match",
+                instruction: "📐 Empareja cada figura con su nombre correcto. ¡Fíjate en los lados y ángulos!",
+                pairs: [
+                    ["⬛ 4 lados iguales, ángulos 90°", "Cuadrado"],
+                    ["▬ Lados opuestos iguales, ángulos 90°", "Rectángulo"],
+                    ["◆ 4 lados iguales, sin ángulos 90°", "Rombo"],
+                    ["▰ Solo 1 par de lados paralelos", "Trapecio"],
+                    ["⬟ Ningún lado paralelo", "Trapezoide"]
+                ]
+            },
+            {
+                id: "m2",
+                name: "Paralelogramo o No",
+                type: "classify",
+                instruction: "📏 Clasifica: los PARALELOGRAMOS tienen 2 pares de lados paralelos. Los que no, van al otro lado.",
+                bins: ["✅ Paralelogramo", "❌ No Paralelogramo"],
+                items: [
+                    ["Cuadrado", 0],
+                    ["Trapecio", 1],
+                    ["Rectángulo", 0],
+                    ["Trapezoide", 1],
+                    ["Rombo", 0],
+                    ["Romboide", 0]
+                ]
+            },
+            {
+                id: "m3",
+                name: "Partes de la Figura",
+                type: "match",
+                instruction: "🎨 Empareja cada elemento del cuadrilátero con su color y su descripción.",
+                pairs: [
+                    ["🟡 Base (amarillo)", "Lado donde se apoya la figura"],
+                    ["🟢 Diagonal (verde)", "Une dos vértices opuestos"],
+                    ["🟣 Altura (morado)", "Distancia perpendicular"],
+                    ["🔵 Ángulo interno (azul)", "Abertura entre dos lados"],
+                    ["🔴 Vértice (rojo)", "Punto donde se unen dos lados"]
+                ]
+            },
+            {
+                id: "m4",
+                name: "Identifica las 6 Figuras",
+                type: "quiz",
+                instruction: "🔷 Reconoce cada cuadrilátero por sus características.",
+                questions: [
+                    {
+                        q: "Tiene 4 lados iguales y 4 ángulos de 90°. ¿Qué figura es?",
+                        opts: ["Rombo", "Cuadrado", "Rectángulo", "Trapecio"],
+                        correct: 1
+                    },
+                    {
+                        q: "Sus lados opuestos son iguales y tiene ángulos de 90°. ¿Cuál es?",
+                        opts: ["Rectángulo", "Rombo", "Trapezoide", "Cuadrado"],
+                        correct: 0
+                    },
+                    {
+                        q: "Tiene 4 lados iguales pero SIN ángulos de 90°. ¿Qué es?",
+                        opts: ["Cuadrado", "Romboide", "Rombo", "Trapecio"],
+                        correct: 2
+                    },
+                    {
+                        q: "Solo tiene UN par de lados paralelos. ¿Cuál es?",
+                        opts: ["Trapecio", "Rectángulo", "Rombo", "Romboide"],
+                        correct: 0
+                    },
+                    {
+                        q: "NO tiene ningún lado paralelo. ¿Qué figura es?",
+                        opts: ["Trapecio", "Trapezoide", "Cuadrado", "Rombo"],
+                        correct: 1
+                    }
+                ]
+            }
+        ]
+    },
+    sociales: {
+        name: "🌍 Tierra de Sociales",
+        cls: "world-sociales",
+        icon: "🌍",
+        desc: "Costa Rica: Región Huetar Norte",
+        levels: [
+            {
+                id: "s1",
+                name: "Conoce la Región",
+                type: "match",
+                instruction: "🗺️ Empareja cada tema de la Región Huetar Norte con su información correcta.",
+                pairs: [
+                    ["🌧️ Clima", "Tropical seco y lluvioso"],
+                    ["🐄 Actividad económica", "Ganadería de leche"],
+                    ["👥 Población", "Territorio indígena Maleku"],
+                    ["🏞️ Parque Nacional", "Volcán Tenorio"]
+                ]
+            },
+            {
+                id: "s2",
+                name: "Ríos y Llanuras",
+                type: "classify",
+                instruction: "💧 Clasifica: ¿es un RÍO o una LLANURA de la Región Norte de Costa Rica?",
+                bins: ["🌊 Ríos", "🌾 Llanuras"],
+                items: [
+                    ["Río Frío", 0],
+                    ["Guatuso", 1],
+                    ["Río San Carlos", 0],
+                    ["San Carlos", 1],
+                    ["Río Sarapiquí", 0],
+                    ["Sarapiquí", 1]
+                ]
+            },
+            {
+                id: "s3",
+                name: "Las 3 Llanuras de C.R.",
+                type: "classify",
+                instruction: "🗺️ ¿En qué vertiente está cada llanura de Costa Rica? Arrastra a su ubicación correcta.",
+                bins: ["⬆️ Vertiente Norte", "🌴 Otras vertientes"],
+                items: [
+                    ["Llanura del Norte", 0],
+                    ["Llanura del Caribe", 1],
+                    ["Llanura del Pacífico", 1],
+                    ["Guatuso (Norte)", 0]
+                ]
+            },
+            {
+                id: "s4",
+                name: "Datos de la Región",
+                type: "quiz",
+                instruction: "🇨🇷 Demuestra lo que sabes sobre la Región Huetar Norte.",
+                questions: [
+                    {
+                        q: "¿Con qué país limita al norte la Región Huetar Norte?",
+                        opts: ["Panamá", "Nicaragua", "Colombia", "México"],
+                        correct: 1
+                    },
+                    {
+                        q: "¿Cuál es el río más grande e importante de la región?",
+                        opts: ["Río Frío", "Río Sapoá", "Río San Carlos", "Río Sarapiquí"],
+                        correct: 2
+                    },
+                    {
+                        q: "¿Qué pueblo indígena habita en esta región?",
+                        opts: ["Maleku", "Bribri", "Cabécar", "Boruca"],
+                        correct: 0
+                    },
+                    {
+                        q: "¿Qué río está en peligro por la deforestación?",
+                        opts: ["Río Frío", "Río Sarapiquí", "Río San Carlos", "Río Sapoá"],
+                        correct: 1
+                    }
+                ]
+            }
+        ]
+    }
+};
+
+// ============ RENDER PRINCIPAL ============
+function render(html) { document.getElementById('screen').innerHTML = html; }
+function updateStats() {
+    document.getElementById('coins').textContent = state.coins;
+    document.getElementById('stars').textContent = state.stars;
+}
+
+function showIntro() {
+    render(`
+        <div class="intro">
+            <div class="hero">🧙‍♂️</div>
+            <h2>¡Bienvenido, Aventurero!</h2>
+            <p>Aquí aprenderás en 3 pasos: <b>1)</b> El Tutor te explica 📚 → <b>2)</b> Practicas jugando 🎮 → <b>3)</b> Resuelves tus tareas 📝</p>
+            <button class="big-btn" onclick="showModePicker()">🚀 ¡Comenzar!</button>
+        </div>
+    `);
+}
+
+function showModePicker() {
+    render(`
+        <div class="game-header"><h2>¿Qué quieres hacer?</h2></div>
+        <div class="mode-grid mode-grid-3">
+            <div class="mode-card mode-learn" onclick="showTutorMenu()">
+                <div class="mode-icon">📚</div>
+                <h3>Tutor Personal</h3>
+                <p>Aprende cada tema solo, con explicaciones fáciles y ejemplos.</p>
+                <div class="mode-tag">Empieza aquí</div>
+            </div>
+            <div class="mode-card mode-play" onclick="showWorlds()">
+                <div class="mode-icon">🎮</div>
+                <h3>Modo Aventura</h3>
+                <p>Practica jugando: empareja y clasifica. ¡Gana monedas y estrellas!</p>
+                <div class="mode-tag">Luego practica</div>
+            </div>
+            <div class="mode-card mode-task" onclick="showTaskMenu()">
+                <div class="mode-icon">📝</div>
+                <h3>Modo Tarea</h3>
+                <p>Resuelve tus tareas y cópialas a tu hoja física.</p>
+                <div class="mode-tag">Al final</div>
+            </div>
+        </div>
+    `);
+}
+
+function worldStars(key) {
+    const w = WORLDS[key];
+    let done = 0;
+    w.levels.forEach(l => { if (state.completed[key+"-"+l.id]) done++; });
+    return done + "/" + w.levels.length;
+}
+function worldComplete(key) {
+    const w = WORLDS[key];
+    return w.levels.every(l => state.completed[key+"-"+l.id]);
+}
+
+function showWorlds() {
+    let cards = "";
+    for (const key in WORLDS) {
+        const w = WORLDS[key];
+        const badge = worldComplete(key) ? '<div class="world-badge">✓</div>' : '';
+        cards += `
+            <div class="world-card ${w.cls}" onclick="showLevels('${key}')">
+                ${badge}
+                <div class="world-icon">${w.icon}</div>
+                <h3>${w.name.replace(/^.. /,'')}</h3>
+                <p>${w.desc}</p>
+                <div class="world-stars">⭐ ${worldStars(key)}</div>
+            </div>
+        `;
+    }
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showModePicker()">←</button>
+            <h2>🗺️ Elige tu Isla</h2>
+        </div>
+        <div class="instruction">Cada isla tiene misiones diferentes. ¡Complétalas todas para volverte un Maestro del Saber! 🏆</div>
+        <div class="worlds">${cards}</div>
+    `);
+}
+
+function showLevels(worldKey) {
+    state.currentWorld = worldKey;
+    const w = WORLDS[worldKey];
+    let btns = "";
+    w.levels.forEach((l, i) => {
+        const done = state.completed[worldKey+"-"+l.id];
+        btns += `
+            <button class="level-btn ${done?'done':''}" onclick="playLevel('${worldKey}', ${i})">
+                ${done?'<span class="chk">✓</span> ':''}${l.name}
+            </button>
+        `;
+    });
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showWorlds()">←</button>
+            <h2>${w.name}</h2>
+        </div>
+        <div class="instruction">Selecciona una misión para jugar:</div>
+        <div class="level-picker">${btns}</div>
+    `);
+}
+
+function playLevel(worldKey, idx) {
+    const level = WORLDS[worldKey].levels[idx];
+    if (level.type === "match") renderMatch(worldKey, level);
+    else if (level.type === "classify") renderClassify(worldKey, level);
+    else if (level.type === "quiz") renderQuiz(worldKey, level);
+}
+
+// ============ MINIJUEGO: EMPAREJAR ============
+let matchSel = { left: null, leftEl: null };
+let matchDone = 0;
+
+function renderMatch(worldKey, level) {
+    matchSel = { left: null, leftEl: null };
+    matchDone = 0;
+
+    // Barajar la columna derecha
+    const lefts = level.pairs.map((p,i) => ({text:p[0], idx:i}));
+    const rights = level.pairs.map((p,i) => ({text:p[1], idx:i}));
+    shuffle(rights);
+
+    let leftHTML = lefts.map(l => `<div class="card-item" data-side="L" data-idx="${l.idx}" onclick="selectMatch(this)">${l.text}</div>`).join('');
+    let rightHTML = rights.map(r => `<div class="card-item" data-side="R" data-idx="${r.idx}" onclick="selectMatch(this)">${r.text}</div>`).join('');
+
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showLevels('${worldKey}')">←</button>
+            <h2>${level.name}</h2>
+        </div>
+        <div class="instruction">${level.instruction}</div>
+        <div class="progress-wrap"><div class="progress-fill" id="pfill"></div></div>
+        <div class="match-area">
+            <div class="match-col"><h4>Columna A</h4>${leftHTML}</div>
+            <div class="match-col"><h4>Columna B</h4>${rightHTML}</div>
+        </div>
+    `);
+    window._matchTotal = level.pairs.length;
+    window._matchCtx = { worldKey, level };
+}
+
+function selectMatch(el) {
+    if (el.classList.contains('matched')) return;
+    const side = el.dataset.side;
+    const idx = el.dataset.idx;
+
+    if (side === 'L') {
+        // deseleccionar otro left
+        document.querySelectorAll('[data-side="L"].selected').forEach(e=>e.classList.remove('selected'));
+        el.classList.add('selected');
+        matchSel.left = idx;
+        matchSel.leftEl = el;
+    } else {
+        if (matchSel.left === null) return;
+        if (matchSel.left === idx) {
+            // correcto
+            el.classList.add('matched');
+            matchSel.leftEl.classList.add('matched');
+            matchSel.leftEl.classList.remove('selected');
+            matchSel = { left:null, leftEl:null };
+            matchDone++;
+            const pct = (matchDone / window._matchTotal) * 100;
+            document.getElementById('pfill').style.width = pct + "%";
+            if (matchDone === window._matchTotal) {
+                setTimeout(()=> winLevel(window._matchCtx.worldKey, window._matchCtx.level, 60), 500);
+            }
+        } else {
+            // incorrecto
+            el.classList.add('wrong');
+            matchSel.leftEl.classList.add('wrong');
+            const badLeft = matchSel.leftEl;
+            setTimeout(()=>{
+                el.classList.remove('wrong');
+                badLeft.classList.remove('wrong','selected');
+            }, 500);
+            matchSel = { left:null, leftEl:null };
+        }
+    }
+}
+
+// ============ MINIJUEGO: CLASIFICAR ============
+function renderClassify(worldKey, level) {
+    const items = level.items.map((it,i)=>({text:it[0], bin:it[1], id:i}));
+    shuffle(items);
+
+    let chips = items.map(it => `<div class="chip" draggable="true" data-bin="${it.bin}" data-id="${it.id}" id="chip-${it.id}">${it.text}</div>`).join('');
+    let bins = level.bins.map((b,i)=>`
+        <div class="bin" data-bin="${i}">
+            <h4>${b}</h4>
+            <div class="bin-content" id="bin-${i}"></div>
+        </div>
+    `).join('');
+
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showLevels('${worldKey}')">←</button>
+            <h2>${level.name}</h2>
+        </div>
+        <div class="instruction">${level.instruction}</div>
+        <div class="classify-items" id="chipPool">${chips}</div>
+        <div class="bins">${bins}</div>
+        <button class="check-btn" id="classCheck" onclick="checkClassify('${worldKey}', '${level.id}')" disabled>✓ Verificar</button>
+    `);
+
+    window._classCtx = { worldKey, level, total: items.length, placed: 0 };
+    setupDragDrop();
+}
+
+function setupDragDrop() {
+    let dragged = null;
+
+    document.querySelectorAll('.chip[draggable="true"]').forEach(chip => {
+        chip.addEventListener('dragstart', e => {
+            dragged = chip;
+            chip.classList.add('dragging');
+        });
+        chip.addEventListener('dragend', e => {
+            chip.classList.remove('dragging');
+        });
+        // Touch support
+        chip.addEventListener('touchstart', e => { dragged = chip; }, {passive:true});
+    });
+
+    document.querySelectorAll('.bin').forEach(bin => {
+        bin.addEventListener('dragover', e => { e.preventDefault(); bin.classList.add('over'); });
+        bin.addEventListener('dragleave', e => bin.classList.remove('over'));
+        bin.addEventListener('drop', e => {
+            e.preventDefault();
+            bin.classList.remove('over');
+            if (dragged) {
+                bin.querySelector('.bin-content').appendChild(dragged);
+                dragged.setAttribute('draggable','false');
+                dragged.style.cursor='default';
+                updateClassProgress();
+            }
+        });
+        // Touch drop
+        bin.addEventListener('touchend', e => {
+            if (dragged && dragged.getAttribute('draggable') === 'true') {
+                bin.querySelector('.bin-content').appendChild(dragged);
+                dragged.setAttribute('draggable','false');
+                dragged.style.cursor='default';
+                updateClassProgress();
+                dragged = null;
+            }
+        });
+    });
+}
+
+function updateClassProgress() {
+    const pool = document.getElementById('chipPool');
+    const remaining = pool.querySelectorAll('.chip').length;
+    if (remaining === 0) {
+        document.getElementById('classCheck').disabled = false;
+    }
+}
+
+function checkClassify(worldKey, levelId) {
+    const level = WORLDS[worldKey].levels.find(l=>l.id===levelId);
+    let allCorrect = true;
+    document.querySelectorAll('.bin').forEach(bin => {
+        const binIdx = bin.dataset.bin;
+        bin.querySelectorAll('.chip').forEach(chip => {
+            if (chip.dataset.bin === binIdx) {
+                chip.style.borderColor = '#48bb78';
+                chip.style.background = '#c6f6d5';
+            } else {
+                chip.style.borderColor = '#f56565';
+                chip.style.background = '#fed7d7';
+                allCorrect = false;
+            }
+        });
+    });
+
+    if (allCorrect) {
+        setTimeout(()=> winLevel(worldKey, level, 55), 600);
+    } else {
+        const btn = document.getElementById('classCheck');
+        btn.textContent = "🔄 Corrige los rojos e intenta de nuevo";
+        setTimeout(()=>{
+            // resetear los incorrectos: devolverlos al pool
+            document.querySelectorAll('.bin .chip').forEach(chip => {
+                if (chip.style.background.includes('254') || chip.style.borderColor.includes('245')) {
+                    chip.style.borderColor = '#cbd5e0';
+                    chip.style.background = '#fff';
+                    chip.setAttribute('draggable','true');
+                    chip.style.cursor='grab';
+                    document.getElementById('chipPool').appendChild(chip);
+                }
+            });
+            btn.textContent = "✓ Verificar";
+            btn.disabled = true;
+            setupDragDrop();
+        }, 1500);
+    }
+}
+
+// ============ MINIJUEGO: QUIZ ============
+let quizIdx = 0;
+let quizAnswered = false;
+
+function renderQuiz(worldKey, level) {
+    quizIdx = 0;
+    showQuizQuestion(worldKey, level);
+}
+
+function showQuizQuestion(worldKey, level) {
+    quizAnswered = false;
+    const q = level.questions[quizIdx];
+    const opts = q.opts.map((o,i)=>`<button class="quiz-opt" data-i="${i}" onclick="answerQuiz(this, ${i}, ${q.correct}, '${worldKey}', '${level.id}')">${o}</button>`).join('');
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showLevels('${worldKey}')">←</button>
+            <h2>${level.name}</h2>
+        </div>
+        <div class="instruction">Pregunta ${quizIdx+1} de ${level.questions.length}</div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:${(quizIdx/level.questions.length)*100}%"></div></div>
+        <div class="quiz-q">${q.q}</div>
+        <div class="quiz-opts">${opts}</div>
+    `);
+}
+
+function answerQuiz(el, chosen, correct, worldKey, levelId) {
+    if (quizAnswered) return;
+    quizAnswered = true;
+    const level = WORLDS[worldKey].levels.find(l=>l.id===levelId);
+
+    if (chosen === correct) {
+        el.classList.add('correct');
+        setTimeout(()=>{
+            quizIdx++;
+            if (quizIdx < level.questions.length) {
+                showQuizQuestion(worldKey, level);
+            } else {
+                winLevel(worldKey, level, 70);
+            }
+        }, 800);
+    } else {
+        el.classList.add('wrong');
+        document.querySelectorAll('.quiz-opt').forEach(o=>{
+            if (parseInt(o.dataset.i) === correct) o.classList.add('correct');
+        });
+        setTimeout(()=>{
+            quizIdx++;
+            if (quizIdx < level.questions.length) {
+                showQuizQuestion(worldKey, level);
+            } else {
+                winLevel(worldKey, level, 70);
+            }
+        }, 1500);
+    }
+}
+
+// ============ GANAR NIVEL ============
+function winLevel(worldKey, level, coins) {
+    const key = worldKey + "-" + level.id;
+    const firstTime = !state.completed[key];
+    if (firstTime) {
+        state.completed[key] = true;
+        state.coins += coins;
+        state.stars++;
+    }
+    updateStats();
+
+    const overlay = document.getElementById('overlay');
+    const allDone = Object.keys(state.completed).length === totalLevels();
+
+    overlay.innerHTML = `
+        <div class="reward-box">
+            <div class="big-emoji">${firstTime ? '🎉' : '👍'}</div>
+            <h3>${firstTime ? '¡Misión Completada!' : '¡Bien hecho otra vez!'}</h3>
+            ${firstTime ? `<p class="coins-won">+${coins} 💰</p>` : '<p>Ya habías ganado esta misión</p>'}
+            <button class="big-btn" style="padding:12px 32px;font-size:1.1em;" onclick="closeReward('${worldKey}')">
+                ${allDone ? '🏆 Ver Final' : 'Continuar'}
+            </button>
+        </div>
+    `;
+    overlay.classList.add('show');
+}
+
+function closeReward(worldKey) {
+    document.getElementById('overlay').classList.remove('show');
+    if (Object.keys(state.completed).length === totalLevels()) {
+        showFinal();
+    } else {
+        showLevels(worldKey);
+    }
+}
+
+function totalLevels() {
+    let t = 0;
+    for (const k in WORLDS) t += WORLDS[k].levels.length;
+    return t;
+}
+
+function showFinal() {
+    render(`
+        <div class="final-screen">
+            <div class="trophy">🏆</div>
+            <h2>¡ERES UN MAESTRO DEL SABER!</h2>
+            <p style="font-size:1.3em;color:#666;margin-bottom:8px;">Completaste todas las misiones</p>
+            <p style="font-size:1.5em;color:#ed8936;font-weight:bold;">💰 ${state.coins} monedas · ⭐ ${state.stars} estrellas</p>
+            <div style="margin:24px 0;font-size:1.1em;color:#4a5568;">
+                🔬 Ciencias · 📐 Matemáticas · 🌍 Sociales<br>
+                ¡Dominaste las 3 islas!
+            </div>
+            <button class="big-btn" onclick="showWorlds()">🔄 Volver a Jugar</button>
+        </div>
+    `);
+}
+
+// ============ MODO TUTOR PERSONAL (auto-aprendizaje) ============
+// Lecciones que explican cada tema como un profesor, paso a paso
+
+const LESSONS = [
+    {
+        id:"l1", emoji:"🛡️", subject:"Ciencias",
+        title:"¿Cómo se defienden los animales?",
+        pages:[
+            {
+                type:"intro",
+                title:"¡Hola! Hoy aprenderás sobre las defensas de los animales 🦔",
+                body:"Los animales tienen partes especiales en su cuerpo que los ayudan a protegerse de otros animales que quieren comérselos (los depredadores). ¡Vamos a conocer las 6 defensas principales!"
+            },
+            {
+                type:"facts",
+                title:"Las 6 defensas principales",
+                facts:[
+                    {icon:"🐢", name:"Caparazón", desc:"Estructura dura que cubre el cuerpo (tortugas, caracoles)"},
+                    {icon:"🦌", name:"Cornamentas", desc:"Cuernos en la cabeza (toros, venados)"},
+                    {icon:"🦔", name:"Espinas", desc:"Púas afiladas (puercoespín, cactus)"},
+                    {icon:"🦨", name:"Olores", desc:"Olor fuerte que aleja (zorrillos, flor cadáver)"},
+                    {icon:"🦎", name:"Mimetismo", desc:"Se camuflan con el entorno (camaleón, insecto palo)"},
+                    {icon:"🐍", name:"Veneno", desc:"Sustancia tóxica (rana flecha, serpiente coral)"}
+                ]
+            },
+            {
+                type:"example",
+                title:"Veamos un ejemplo 🔍",
+                exLabel:"El camaleón",
+                exBody:"El camaleón usa el MIMETISMO: cambia el color de su piel para parecerse a las ramas y hojas. Así los depredadores no lo ven. ¡Es como tener un traje invisible!",
+                tip:"Recuerda: el mimetismo es cuando un animal se disfraza para confundirse con lo que lo rodea."
+            },
+            {
+                type:"check",
+                title:"¿Entendiste? 🤔",
+                q:"Un puercoespín tiene el cuerpo cubierto de púas afiladas. ¿Qué tipo de defensa usa?",
+                choices:["Caparazón","Espinas","Veneno"],
+                correct:1,
+                feedback:"¡Exacto! Las espinas o púas afiladas son su defensa. 🦔"
+            }
+        ]
+    },
+    {
+        id:"l2", emoji:"🌱", subject:"Ciencias",
+        title:"Autótrofos y Heterótrofos",
+        pages:[
+            {
+                type:"intro",
+                title:"¿Cómo consiguen comida los seres vivos? 🍽️",
+                body:"Todos los seres vivos necesitan energía para vivir. Pero no todos la consiguen igual. Hay dos grupos: los que FABRICAN su propia comida, y los que se la COMEN a otros."
+            },
+            {
+                type:"facts",
+                title:"Los dos grupos",
+                facts:[
+                    {icon:"🌱", name:"Autótrofos", desc:"Fabrican su propio alimento. Ejemplo: las plantas con la luz del sol"},
+                    {icon:"🦁", name:"Heterótrofos", desc:"Comen a otros seres vivos. Ejemplo: los animales"}
+                ]
+            },
+            {
+                type:"example",
+                title:"Un truco para recordar 🧠",
+                exLabel:"AUTO = uno mismo",
+                exBody:"AUTÓtrofo viene de 'auto' (uno mismo). ¡Se hacen su propia comida! Como una planta que usa el sol. HETERÓtrofo es lo contrario: necesita comer OTROS seres vivos, como el elefante que come hierba.",
+                tip:"Plantas y árboles = autótrofos 🌳 | Animales = heterótrofos 🐘"
+            },
+            {
+                type:"check",
+                title:"¿Entendiste? 🤔",
+                q:"El elefante come hierbas, hojas y frutas. ¿Qué tipo de organismo es?",
+                choices:["Autótrofo","Heterótrofo"],
+                correct:1,
+                feedback:"¡Correcto! El elefante come otros seres vivos (plantas), así que es heterótrofo. 🐘"
+            }
+        ]
+    },
+    {
+        id:"l3", emoji:"📐", subject:"Matemáticas",
+        title:"Los Cuadriláteros",
+        pages:[
+            {
+                type:"intro",
+                title:"¿Qué es un cuadrilátero? 📐",
+                body:"Un cuadrilátero es cualquier figura plana que tiene 4 lados y 4 ángulos. ¡'Cuadri' significa cuatro! Hay muchos tipos y hoy los conocerás todos."
+            },
+            {
+                type:"facts",
+                title:"Paralelogramos (2 pares de lados paralelos)",
+                facts:[
+                    {icon:"⬛", name:"Cuadrado", desc:"4 lados iguales y ángulos de 90°"},
+                    {icon:"▭", name:"Rectángulo", desc:"Lados opuestos iguales, ángulos de 90°"},
+                    {icon:"◆", name:"Rombo", desc:"4 lados iguales, sin ángulos de 90°"},
+                    {icon:"▱", name:"Romboide", desc:"Lados opuestos iguales, sin ángulos de 90°"}
+                ]
+            },
+            {
+                type:"facts",
+                title:"NO paralelogramos",
+                facts:[
+                    {icon:"⏢", name:"Trapecio", desc:"Solo UN par de lados paralelos"},
+                    {icon:"⬟", name:"Trapezoide", desc:"NINGÚN lado paralelo"}
+                ]
+            },
+            {
+                type:"example",
+                title:"¿Cómo diferenciarlos? 🔍",
+                exLabel:"La pregunta clave",
+                exBody:"Pregúntate: ¿cuántos pares de lados paralelos tiene? Si tiene 2 pares → es paralelogramo (cuadrado, rectángulo, rombo, romboide). Si tiene 1 par → trapecio. Si no tiene ninguno → trapezoide.",
+                tip:"Lados paralelos = líneas que nunca se cruzan, como los rieles del tren 🚂"
+            },
+            {
+                type:"check",
+                title:"¿Entendiste? 🤔",
+                q:"Una figura tiene 4 lados iguales y todos sus ángulos miden 90°. ¿Cuál es?",
+                choices:["Rombo","Cuadrado","Trapecio"],
+                correct:1,
+                feedback:"¡Perfecto! 4 lados iguales + ángulos de 90° = cuadrado. ⬛"
+            }
+        ]
+    },
+    {
+        id:"l4", emoji:"🎨", subject:"Matemáticas",
+        title:"Partes de un Cuadrilátero",
+        pages:[
+            {
+                type:"intro",
+                title:"Las partes de una figura 🎨",
+                body:"Igual que tú tienes brazos, piernas y cabeza, las figuras geométricas también tienen partes con nombres especiales. ¡Vamos a conocerlas!"
+            },
+            {
+                type:"facts",
+                title:"Los 5 elementos (con sus colores)",
+                facts:[
+                    {icon:"🟡", name:"Base", desc:"El lado donde se apoya la figura"},
+                    {icon:"🟢", name:"Diagonal", desc:"Línea que une dos vértices opuestos"},
+                    {icon:"🟣", name:"Altura", desc:"Distancia perpendicular (en línea recta hacia arriba)"},
+                    {icon:"🔵", name:"Ángulo interno", desc:"La abertura entre dos lados"},
+                    {icon:"🔴", name:"Vértice", desc:"El punto donde se unen dos lados (la esquina)"}
+                ]
+            },
+            {
+                type:"example",
+                title:"Piénsalo así 🏠",
+                exLabel:"Como una casa",
+                exBody:"La BASE es como el suelo donde se para la casa. Los VÉRTICES son las esquinas. La DIAGONAL es como una cuerda que va de una esquina a la esquina opuesta. La ALTURA es qué tan alta es la casa.",
+                tip:"Recuerda los colores: Base=amarillo 🟡, Diagonal=verde 🟢, Altura=morado 🟣, Ángulo=azul 🔵, Vértice=rojo 🔴"
+            },
+            {
+                type:"check",
+                title:"¿Entendiste? 🤔",
+                q:"¿Cómo se llama el punto donde se unen dos lados (la esquina)?",
+                choices:["Base","Vértice","Diagonal"],
+                correct:1,
+                feedback:"¡Muy bien! La esquina donde se unen dos lados es el vértice. 🔴"
+            }
+        ]
+    },
+    {
+        id:"l5", emoji:"🇨🇷", subject:"Sociales",
+        title:"La Región Huetar Norte",
+        pages:[
+            {
+                type:"intro",
+                title:"Conoce la Región Huetar Norte 🗺️",
+                body:"Costa Rica está dividida en regiones. Hoy conocerás la Región Huetar Norte, que está en la parte norte del país, cerca de Nicaragua."
+            },
+            {
+                type:"facts",
+                title:"Datos importantes",
+                facts:[
+                    {icon:"🧭", name:"Límites", desc:"Al norte limita con Nicaragua"},
+                    {icon:"🌧️", name:"Clima", desc:"Tropical seco y lluvioso"},
+                    {icon:"🏞️", name:"Parques", desc:"Volcán Tenorio y Río Celeste"},
+                    {icon:"👥", name:"Población", desc:"Territorio indígena Maleku"}
+                ]
+            },
+            {
+                type:"facts",
+                title:"Los ríos principales 🌊",
+                facts:[
+                    {icon:"💧", name:"Río San Carlos", desc:"El más grande e importante"},
+                    {icon:"💧", name:"Río Frío", desc:"Atraviesa la llanura de Guatuso"},
+                    {icon:"💧", name:"Río Sarapiquí", desc:"En peligro por deforestación"},
+                    {icon:"💧", name:"Río Sapoá", desc:"El más caudaloso, aguas profundas"}
+                ]
+            },
+            {
+                type:"example",
+                title:"Las 3 llanuras de Costa Rica 🌾",
+                exLabel:"Recuerda estas 3",
+                exBody:"Costa Rica tiene 3 llanuras principales: la Llanura del NORTE, la Llanura del CARIBE y la Llanura del PACÍFICO. La región que estudiamos está en la llanura del Norte.",
+                tip:"La actividad económica principal aquí es la ganadería de leche 🐄 y el turismo."
+            },
+            {
+                type:"check",
+                title:"¿Entendiste? 🤔",
+                q:"¿Con qué país limita al norte la Región Huetar Norte?",
+                choices:["Panamá","Nicaragua","Colombia"],
+                correct:1,
+                feedback:"¡Correcto! Al norte está Nicaragua. 🇳🇮"
+            }
+        ]
+    }
+];
+
+const lessonRead = {};   // { lessonId: true }
+
+function showTutorMenu() {
+    let items = LESSONS.map(l => `
+        <div class="tutor-item ${lessonRead[l.id]?'read':''}" onclick="openLesson('${l.id}')">
+            <div class="task-emoji">${l.emoji}</div>
+            <div class="task-info">
+                <h4>${l.title}</h4>
+                <p>${l.subject} · ${l.pages.length} páginas</p>
+            </div>
+            <div class="task-status">${lessonRead[l.id]?'✅':'📖'}</div>
+        </div>
+    `).join('');
+
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showModePicker()">←</button>
+            <h2>📚 Tutor Personal</h2>
+        </div>
+        <div class="instruction">Tu profesor personal te explicará cada tema paso a paso. ¡Lee con calma y aprende a tu ritmo! 🧑‍🏫</div>
+        <div class="tutor-list">${items}</div>
+    `);
+}
+
+let currentLesson = null;
+let lessonPage = 0;
+
+function openLesson(lessonId) {
+    currentLesson = LESSONS.find(l=>l.id===lessonId);
+    lessonPage = 0;
+    showLessonPage();
+}
+
+function showLessonPage() {
+    const l = currentLesson;
+    const page = l.pages[lessonPage];
+    const isLast = lessonPage === l.pages.length - 1;
+
+    let content = "";
+
+    if (page.type === "intro") {
+        content = `
+            <div class="tutor-avatar">🧑‍🏫</div>
+            <h3>${page.title}</h3>
+            <div class="lesson-step">
+                <div class="step-body">${page.body}</div>
+            </div>
+        `;
+    } else if (page.type === "facts") {
+        content = `
+            <h3>${page.title}</h3>
+            <div class="fact-grid">
+                ${page.facts.map(f=>`
+                    <div class="fact-box">
+                        <div class="fact-icon">${f.icon}</div>
+                        <div class="fact-name">${f.name}</div>
+                        <div class="fact-desc">${f.desc}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else if (page.type === "example") {
+        content = `
+            <h3>${page.title}</h3>
+            <div class="lesson-example">
+                <div class="ex-label">💡 ${page.exLabel}</div>
+                <div class="step-body">${page.exBody}</div>
+            </div>
+            <div class="lesson-tip">✨ ${page.tip}</div>
+        `;
+    } else if (page.type === "check") {
+        content = `
+            <h3>${page.title}</h3>
+            <div class="lesson-step">
+                <div class="step-title">${page.q}</div>
+            </div>
+            <div class="task-choices" id="lessonCheck">
+                ${page.choices.map((c,i)=>`
+                    <button class="task-choice" data-i="${i}" onclick="checkLessonAnswer(${i}, ${page.correct})">${c}</button>
+                `).join('')}
+            </div>
+            <div class="lesson-tip" id="lessonFeedback" style="display:none;">${page.feedback}</div>
+        `;
+    }
+
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showTutorMenu()">←</button>
+            <h2>${l.emoji} ${l.title}</h2>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:${((lessonPage+1)/l.pages.length)*100}%"></div></div>
+        <div class="lesson-card">${content}</div>
+        <div class="lesson-nav">
+            ${lessonPage>0 ? '<button class="check-btn" style="background:#a0aec0;flex:1;" onclick="prevLessonPage()">← Atrás</button>' : ''}
+            <button class="check-btn" style="flex:1;" onclick="nextLessonPage()" id="lessonNextBtn">${isLast?'✓ ¡Terminé!':'Siguiente →'}</button>
+        </div>
+    `);
+}
+
+function checkLessonAnswer(chosen, correct) {
+    const buttons = document.querySelectorAll('#lessonCheck .task-choice');
+    buttons.forEach(b => b.style.pointerEvents = 'none');
+    buttons[chosen].classList.add(chosen===correct ? 'picked' : '');
+    if (chosen === correct) {
+        buttons[chosen].style.borderColor = '#48bb78';
+        buttons[chosen].style.background = '#c6f6d5';
+    } else {
+        buttons[chosen].style.borderColor = '#f56565';
+        buttons[chosen].style.background = '#fed7d7';
+        buttons[correct].style.borderColor = '#48bb78';
+        buttons[correct].style.background = '#c6f6d5';
+    }
+    document.getElementById('lessonFeedback').style.display = 'block';
+}
+
+function nextLessonPage() {
+    if (lessonPage < currentLesson.pages.length - 1) {
+        lessonPage++;
+        showLessonPage();
+    } else {
+        // Terminó la lección
+        lessonRead[currentLesson.id] = true;
+        showLessonComplete();
+    }
+}
+
+function prevLessonPage() {
+    if (lessonPage > 0) {
+        lessonPage--;
+        showLessonPage();
+    }
+}
+
+function showLessonComplete() {
+    const l = currentLesson;
+    render(`
+        <div class="final-screen" style="padding:30px 20px;">
+            <div style="font-size:4em;">🎓</div>
+            <h2 style="font-size:1.6em;color:#2b6cb0;">¡Aprendiste ${l.title}!</h2>
+            <p style="font-size:1.1em;color:#666;margin:16px 0;">Ahora que ya sabes, puedes practicar jugando o resolver tu tarea.</p>
+            <div style="display:flex; flex-direction:column; gap:10px; max-width:340px; margin:20px auto 0;">
+                <button class="check-btn" onclick="showWorlds()">🎮 Practicar jugando</button>
+                <button class="check-btn" style="background:#ecc94b;color:#744210;" onclick="showTaskMenu()">📝 Hacer mi tarea</button>
+                <button class="check-btn" style="background:#a0aec0;" onclick="showTutorMenu()">📚 Aprender otro tema</button>
+            </div>
+        </div>
+    `);
+}
+
+// ============ MODO TAREA ============
+// Preguntas EXACTAS de cada hoja física, para resolver en pantalla y copiar
+
+const TASKS = [
+    {
+        id:"t1", emoji:"🐢", subject:"Ciencias",
+        title:"Adaptaciones para la defensa",
+        desc:"Hoja 1 · Escribe un ejemplo de animal para cada defensa",
+        questions:[
+            {q:"Caparazones — escribe 2 ejemplos de animales:", type:"text", hint:"Piensa en animales con concha dura: tortugas y caracoles."},
+            {q:"Cornamentas — escribe 2 ejemplos:", type:"text", hint:"Animales con cuernos en la cabeza: toros y venados."},
+            {q:"Espinas — escribe un animal y una planta:", type:"text", hint:"Puercoespín (animal) y cactus (planta)."},
+            {q:"Olores — escribe 2 ejemplos:", type:"text", hint:"Zorrillos y la flor cadáver."},
+            {q:"Mimetismo — escribe 2 ejemplos:", type:"text", hint:"El insecto palo y el camaleón."}
+        ]
+    },
+    {
+        id:"t2", emoji:"🐍", subject:"Ciencias",
+        title:"Autótrofos, Heterótrofos y el Elefante",
+        desc:"Hoja 2 · Define y responde sobre el elefante",
+        questions:[
+            {q:"¿Qué son los organismos AUTÓTROFOS? (con tus palabras)", type:"text", hint:"Son los que fabrican su propio alimento, como las plantas mediante la fotosíntesis."},
+            {q:"¿Qué son los organismos HETERÓTROFOS?", type:"text", hint:"Son los que se alimentan de otros seres vivos, porque no producen su propio alimento."},
+            {q:"1. ¿Cuál es el tipo de adaptación que tiene el elefante para la alimentación?", type:"text", hint:"Su trompa larga y flexible, que usa para arrancar y recoger alimentos y beber agua."},
+            {q:"2. ¿Cómo es la reproducción del elefante?", type:"text", hint:"Tiene gestación larga y una sola cría cada vez, que cuida con esmero hasta que es independiente."},
+            {q:"3. ¿El elefante es autótrofo o heterótrofo?", type:"choice", choices:["Autótrofo","Heterótrofo"], correct:1, hint:"El elefante come plantas (hierbas, hojas, frutas), no las fabrica: es heterótrofo."}
+        ]
+    },
+    {
+        id:"t3", emoji:"🗺️", subject:"Sociales",
+        title:"Región Huetar Norte",
+        desc:"Hoja 3 · Datos de la región",
+        questions:[
+            {q:"¿Con qué país limita al norte?", type:"choice", choices:["Panamá","Nicaragua","Colombia"], correct:1, hint:"Al norte de Costa Rica está Nicaragua."},
+            {q:"¿Cómo es el clima de la región?", type:"text", hint:"Tropical seco y lluvioso."},
+            {q:"Menciona 2 ríos de la región:", type:"text", hint:"Río Frío, San Carlos, Toro o Sarapiquí."},
+            {q:"¿Qué territorio indígena se ubica aquí?", type:"choice", choices:["Maleku","Bribri","Boruca"], correct:0, hint:"El territorio indígena Maleku."}
+        ]
+    },
+    {
+        id:"t4", emoji:"🐄", subject:"Sociales",
+        title:"Actividad económica y regiones",
+        desc:"Hoja 4 · Define y observa el mapa",
+        questions:[
+            {q:"Define con tus palabras qué son las regiones socioeconómicas:", type:"text", hint:"Son zonas en que se divide el país según sus actividades económicas y características sociales."},
+            {q:"Menciona 2 actividades económicas de la región:", type:"text", hint:"Ganadería de leche, cultivo de granos básicos, caña de azúcar, o turismo."}
+        ]
+    },
+    {
+        id:"t5", emoji:"📐", subject:"Matemáticas",
+        title:"Cuadriláteros paralelogramos",
+        desc:"Hoja 5 · Clasifica las figuras",
+        questions:[
+            {q:"El cuadrado: ¿cómo son sus lados y ángulos?", type:"text", hint:"Todos sus lados miden lo mismo y sus ángulos miden 90°."},
+            {q:"El rectángulo: ¿cómo son sus lados y ángulos?", type:"text", hint:"Sus lados opuestos miden lo mismo y todos sus ángulos miden 90°."},
+            {q:"El rombo: ¿cómo son sus lados y ángulos?", type:"text", hint:"Todos sus lados miden lo mismo, pero sus ángulos opuestos son iguales (no 90°)."},
+            {q:"El romboide: ¿cómo son sus lados y ángulos?", type:"text", hint:"Sus lados opuestos miden lo mismo y sus ángulos opuestos también (no 90°)."}
+        ]
+    },
+    {
+        id:"t6", emoji:"🔷", subject:"Matemáticas",
+        title:"Cuadriláteros NO paralelogramos",
+        desc:"Hoja 6 · Marca ✓ los paralelogramos y ✗ los que no",
+        questions:[
+            {q:"Cuadrado — ¿es paralelogramo?", type:"choice", choices:["✓ Sí","✗ No"], correct:0, hint:"El cuadrado SÍ es paralelogramo (2 pares de lados paralelos)."},
+            {q:"Trapecio — ¿es paralelogramo?", type:"choice", choices:["✓ Sí","✗ No"], correct:1, hint:"El trapecio NO: solo tiene un par de lados paralelos."},
+            {q:"Rombo — ¿es paralelogramo?", type:"choice", choices:["✓ Sí","✗ No"], correct:0, hint:"El rombo SÍ es paralelogramo."},
+            {q:"Trapezoide — ¿es paralelogramo?", type:"choice", choices:["✓ Sí","✗ No"], correct:1, hint:"El trapezoide NO: no tiene lados paralelos."},
+            {q:"Romboide — ¿es paralelogramo?", type:"choice", choices:["✓ Sí","✗ No"], correct:0, hint:"El romboide SÍ es paralelogramo."}
+        ]
+    },
+    {
+        id:"t7", emoji:"🎨", subject:"Matemáticas",
+        title:"Elementos del cuadrilátero",
+        desc:"Hoja 7 · Escribe el nombre de cada elemento",
+        questions:[
+            {q:"Lado sobre el que se apoya la figura:", type:"choice", choices:["Base","Altura","Diagonal"], correct:0, hint:"La base (en la clave de colores es amarillo)."},
+            {q:"Línea que une dos vértices opuestos:", type:"choice", choices:["Altura","Diagonal","Vértice"], correct:1, hint:"La diagonal (verde en la clave)."},
+            {q:"Distancia perpendicular entre la base y el lado opuesto:", type:"choice", choices:["Altura","Base","Ángulo"], correct:0, hint:"La altura (morado en la clave)."},
+            {q:"Abertura formada entre dos lados:", type:"choice", choices:["Vértice","Diagonal","Ángulo interno"], correct:2, hint:"El ángulo interno (azul en la clave)."},
+            {q:"Punto donde se unen dos lados:", type:"choice", choices:["Vértice","Base","Altura"], correct:0, hint:"El vértice (rojo en la clave)."}
+        ]
+    },
+    {
+        id:"t8", emoji:"🪞", subject:"Matemáticas",
+        title:"Problema del espejo",
+        desc:"Hoja 8 · Resuelve el problema de Melanie",
+        questions:[
+            {q:"Melanie quiere un espejo con forma de TRAPEZOIDE. ¿Qué característica tiene esa figura?", type:"text", hint:"El trapezoide no tiene ningún lado paralelo."},
+            {q:"¿En qué tipo de cuadrilátero se clasifica el trapezoide?", type:"choice", choices:["Paralelogramo","No paralelogramo"], correct:1, hint:"Es un cuadrilátero NO paralelogramo."}
+        ]
+    },
+    {
+        id:"t9", emoji:"📋", subject:"Matemáticas",
+        title:"Identifica por características",
+        desc:"Hoja 9 · Relaciona características con figuras",
+        questions:[
+            {q:"'Tiene 2 lados paralelos' → ¿qué figura y clasificación?", type:"text", hint:"Trapecio — no paralelogramo."},
+            {q:"'Sus ángulos miden 90° y sus lados son iguales' → ¿cuál es?", type:"text", hint:"Cuadrado — paralelogramo."},
+            {q:"'No tiene lados paralelos' → ¿cuál es?", type:"text", hint:"Trapezoide — no paralelogramo."},
+            {q:"'Sus ángulos miden 90° y sus lados opuestos son iguales' → ¿cuál es?", type:"text", hint:"Rectángulo — paralelogramo."}
+        ]
+    },
+    {
+        id:"t10", emoji:"💧", subject:"Sociales",
+        title:"Subvertiente Norte y llanuras",
+        desc:"Hoja 10 · Ríos y llanuras de Costa Rica",
+        questions:[
+            {q:"¿Cuál es el río más grande e importante de la región?", type:"choice", choices:["Río Frío","Río San Carlos","Río Sapoá"], correct:1, hint:"El Río San Carlos."},
+            {q:"Anota las 3 principales llanuras de Costa Rica:", type:"text", hint:"Llanuras del Norte, del Caribe y del Pacífico."},
+            {q:"¿En qué vertiente está la llanura de Guatuso?", type:"choice", choices:["Norte","Caribe","Pacífico"], correct:0, hint:"En la vertiente/llanura del Norte."}
+        ]
+    }
+];
+
+const taskAnswers = {};   // { taskId: [respuestas] }
+const taskDone = {};      // { taskId: true }
+
+function showTaskMenu() {
+    let items = TASKS.map(t => `
+        <div class="task-item ${taskDone[t.id]?'done':''}" onclick="openTask('${t.id}')">
+            <div class="task-emoji">${t.emoji}</div>
+            <div class="task-info">
+                <h4>${t.title}</h4>
+                <p>${t.subject} · ${t.desc}</p>
+            </div>
+            <div class="task-status">${taskDone[t.id]?'✅':'✏️'}</div>
+        </div>
+    `).join('');
+
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showModePicker()">←</button>
+            <h2>📝 Modo Tarea</h2>
+        </div>
+        <div class="instruction">Resuelve cada tarea en pantalla. Al terminar verás tus respuestas para copiarlas a tu hoja física. 📄✍️</div>
+        <div class="task-list">${items}</div>
+    `);
+}
+
+let currentTask = null;
+let taskQIdx = 0;
+
+function openTask(taskId) {
+    currentTask = TASKS.find(t=>t.id===taskId);
+    taskQIdx = 0;
+    if (!taskAnswers[taskId]) taskAnswers[taskId] = [];
+    showTaskQuestion();
+}
+
+function showTaskQuestion() {
+    const t = currentTask;
+    const q = t.questions[taskQIdx];
+    const saved = taskAnswers[t.id][taskQIdx];
+
+    let inputHTML = "";
+    if (q.type === "text") {
+        inputHTML = `<textarea class="task-input" id="taskInput" placeholder="Escribe tu respuesta aquí...">${saved || ""}</textarea>`;
+    } else if (q.type === "choice") {
+        inputHTML = `<div class="task-choices">${
+            q.choices.map((c,i)=>`
+                <button class="task-choice ${saved===i?'picked':''}" data-i="${i}" onclick="pickTaskChoice(${i})">${c}</button>
+            `).join('')
+        }</div>`;
+    }
+
+    const isLast = taskQIdx === t.questions.length - 1;
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showTaskMenu()">←</button>
+            <h2>${t.emoji} ${t.title}</h2>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:${(taskQIdx/t.questions.length)*100}%"></div></div>
+        <div class="task-question">
+            <div class="qnum">Pregunta ${taskQIdx+1} de ${t.questions.length}</div>
+            <div class="qtext">${q.q}</div>
+            ${inputHTML}
+            <button class="hint-btn" onclick="toggleHint()">💡 Ver pista</button>
+            <div class="hint-box" id="hintBox">${q.hint}</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+            ${taskQIdx>0 ? '<button class="check-btn" style="background:#a0aec0;flex:1;" onclick="prevTaskQ()">← Anterior</button>' : ''}
+            <button class="check-btn" style="flex:1;" onclick="nextTaskQ()">${isLast?'✓ Terminar':'Siguiente →'}</button>
+        </div>
+    `);
+    window._taskChoice = saved !== undefined ? saved : null;
+}
+
+function pickTaskChoice(i) {
+    window._taskChoice = i;
+    document.querySelectorAll('.task-choice').forEach(b=>b.classList.remove('picked'));
+    document.querySelector(`.task-choice[data-i="${i}"]`).classList.add('picked');
+}
+
+function toggleHint() {
+    document.getElementById('hintBox').classList.toggle('show');
+}
+
+function saveTaskAnswer() {
+    const q = currentTask.questions[taskQIdx];
+    if (q.type === "text") {
+        const val = document.getElementById('taskInput').value.trim();
+        taskAnswers[currentTask.id][taskQIdx] = val;
+    } else if (q.type === "choice") {
+        if (window._taskChoice !== null) {
+            taskAnswers[currentTask.id][taskQIdx] = window._taskChoice;
+        }
+    }
+}
+
+function nextTaskQ() {
+    saveTaskAnswer();
+    if (taskQIdx < currentTask.questions.length - 1) {
+        taskQIdx++;
+        showTaskQuestion();
+    } else {
+        finishTask();
+    }
+}
+
+function prevTaskQ() {
+    saveTaskAnswer();
+    if (taskQIdx > 0) {
+        taskQIdx--;
+        showTaskQuestion();
+    }
+}
+
+function finishTask() {
+    const t = currentTask;
+    taskDone[t.id] = true;
+
+    let rows = t.questions.map((q, i) => {
+        let ans = taskAnswers[t.id][i];
+        let displayAns;
+        if (q.type === "choice") {
+            displayAns = (ans !== undefined && ans !== null) ? q.choices[ans] : "(sin responder)";
+        } else {
+            displayAns = ans && ans.length ? ans : "(sin responder)";
+        }
+        return `
+            <div class="answer-row">
+                <div class="a-q">${i+1}. ${q.q}</div>
+                <div class="a-a">➡️ ${displayAns}</div>
+            </div>
+        `;
+    }).join('');
+
+    render(`
+        <div class="game-header">
+            <button class="back-arrow" onclick="showTaskMenu()">←</button>
+            <h2>${t.emoji} ¡Tarea Lista!</h2>
+        </div>
+        <div class="answer-sheet">
+            <h3>📄 Tus respuestas — cópialas a tu hoja</h3>
+            ${rows}
+        </div>
+        <div class="copy-note">
+            ✍️ Ahora copia estas respuestas en tu hoja física de "${t.title}".
+        </div>
+        <div style="display:flex; gap:10px; margin-top:16px;">
+            <button class="check-btn" style="background:#a0aec0;flex:1;" onclick="openTask('${t.id}')">✏️ Editar respuestas</button>
+            <button class="check-btn" style="flex:1;" onclick="showTaskMenu()">📋 Otras tareas</button>
+        </div>
+    `);
+}
+
+// ============ UTILIDADES ============
+function shuffle(arr) {
+    for (let i = arr.length-1; i>0; i--) {
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+// INICIAR
+showIntro();
+</script>
+</body>
+</html>
